@@ -1,21 +1,47 @@
+local options = require 'mp.options'
+
+-- Function to split a string by a delimiter
+local function split(s, delimiter)
+    local result = {}
+    for match in (s..delimiter):gmatch("(.-)"..delimiter) do
+        table.insert(result, match)
+    end
+    return result
+end
+
+local opts = {
+    languages = 'English,en,eng;Finnish,fi,fin;Swedish,sv,swe;Spanish,es,spa',
+    subliminal = 'subliminal',  -- path to subliminal
+    logins = '',  -- '--opensubtitles,USERNAME,PASSWORD'
+    autoload = 'yes' -- autoload (or download) subtitles
+}
+options.read_options(opts, 'autosub')
+
+
 --=============================================================================
 -->>    SUBLIMINAL PATH:
 --=============================================================================
 --          This script uses Subliminal to download subtitles,
 --          so make sure to specify your system's Subliminal location below:
-local subliminal = '/home/david/.local/bin/subliminal'
+local subliminal = opts.subliminal
 --=============================================================================
 -->>    SUBTITLE LANGUAGE:
 --=============================================================================
+local languages = {}
+for _, lang in ipairs(split(opts.languages, ';')) do
+    table.insert(languages, split(lang, ','))
+end
 --          Specify languages in this order:
 --          { 'language name', 'ISO-639-1', 'ISO-639-2' } !
 --          (See: https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)
-local languages = {
+-- local languages = {
 --          If subtitles are found for the first language,
 --          other languages will NOT be downloaded,
 --          so put your preferred language first:
-            { 'English', 'en', 'eng' },
-            { 'Dutch', 'nl', 'dut' },
+--          { 'English', 'en', 'eng' },
+--          { 'Finnish', 'fi', 'fin' },
+--          { 'Swedish', 'sv', 'swe' },
+--          { 'Estonian', 'et', 'est' },
 --          { 'Spanish', 'es', 'spa' },
 --          { 'French', 'fr', 'fre' },
 --          { 'German', 'de', 'ger' },
@@ -25,25 +51,31 @@ local languages = {
 --          { 'Russian', 'ru', 'rus' },
 --          { 'Chinese', 'zh', 'chi' },
 --          { 'Arabic', 'ar', 'ara' },
-}
+--}
 --=============================================================================
 -->>    PROVIDER LOGINS:
 --=============================================================================
+local login = {}
+for _, login_piece in ipairs(split(opts.logins, ',')) do
+    table.insert(login, login_piece)
+end
+local logins = { login }
 --          These are completely optional and not required
 --          for the functioning of the script!
 --          If you use any of these services, simply uncomment it
 --          and replace 'USERNAME' and 'PASSWORD' with your own:
-local logins = {
+--local logins = {
 --          { '--addic7ed', 'USERNAME', 'PASSWORD' },
 --          { '--legendastv', 'USERNAME', 'PASSWORD' },
 --          { '--opensubtitles', 'USERNAME', 'PASSWORD' },
 --          { '--subscenter', 'USERNAME', 'PASSWORD' },
-}
+--}
 --=============================================================================
 -->>    ADDITIONAL OPTIONS:
 --=============================================================================
+local autoload = opts.autoload == "yes"
 local bools = {
-    auto = true,   -- Automatically download subtitles, no hotkeys required
+    auto = autoload,   -- Automatically download subtitles, no hotkeys required
     debug = false, -- Use `--debug` in subliminal command for debug output
     force = true,  -- Force download; will overwrite existing subtitle files
     utf8 = true,   -- Save all subtitle files as UTF-8
@@ -72,7 +104,7 @@ function download_subs(language)
         log('No Language found\n')
         return false
     end
-            
+
     log('Searching ' .. language[1] .. ' subtitles ...', 30)
 
     -- Build the `subliminal` command, starting with the executable:
@@ -123,6 +155,16 @@ end
 -- Manually download second language subs by pressing 'n':
 function download_subs2()
     download_subs(languages[2])
+end
+
+-- Manually download second language subs by pressing 'n':
+function download_subs3()
+    download_subs(languages[3])
+end
+
+-- Manually download second language subs by pressing 'n':
+function download_subs4()
+    download_subs(languages[4])
 end
 
 -- Control function: only download if necessary
@@ -256,4 +298,6 @@ end
 
 mp.add_key_binding('b', 'download_subs', download_subs)
 mp.add_key_binding('n', 'download_subs2', download_subs2)
+mp.add_key_binding('SHIFT+b', 'download_subs3', download_subs3)
+mp.add_key_binding('SHIFT+n', 'download_subs4', download_subs4)
 mp.register_event('file-loaded', control_downloads)
