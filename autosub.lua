@@ -56,7 +56,7 @@ end
 -->>    PROVIDER LOGINS:
 --=============================================================================
 local logins = {
-	{ '--opensubtitles', opts.username, opts.password }
+  { '--opensubtitles', opts.username, opts.password }
 }
 --          These are completely optional and not required
 --          for the functioning of the script!
