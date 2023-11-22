@@ -55,11 +55,9 @@ end
 --=============================================================================
 -->>    PROVIDER LOGINS:
 --=============================================================================
-local login = {}
-for _, login_piece in ipairs(split(opts.logins, ',')) do
-    table.insert(login, login_piece)
-end
-local logins = { login }
+local logins = {
+	{ '--opensubtitles', opts.username, opts.password }
+}
 --          These are completely optional and not required
 --          for the functioning of the script!
 --          If you use any of these services, simply uncomment it
@@ -103,6 +101,16 @@ function download_subs(language)
     if #language == 0 then
         log('No Language found\n')
         return false
+    end
+
+    if not opts.username then
+      log('No username found\n')
+      return false
+    end
+
+    if not opts.password then
+      log('No password found\n')
+      return false
     end
 
     log('Searching ' .. language[1] .. ' subtitles ...', 30)
